@@ -1,0 +1,155 @@
+<html><head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <style>
+    html {
+      background-color: #616161;
+    }
+    #main {
+      width: 600px;
+      margin: 0 auto;
+    }
+    label, input {
+      display: inline-block;
+    }
+    label {
+    width: 30%;
+    text-align: right;
+    }
+
+    label + input {
+        width: 30%;
+        margin: 0 30% 0 4%;
+    }
+    </style>
+</head>
+
+<body>
+    <div style="text-align: center;">
+            <h1>Irctc Ticket Cancellation calc</h1></div><div id="main" style="background: #1abc9c; padding: 10px;">
+    <form id="rendered-form">
+
+        <div>
+            <label>Amount</label>
+            <input type="number" name="amount" min="0" id="amount" required="true">
+        </div>
+        <div>
+            <label>Number of Passenger</label>
+            <input type="number" name="noOfPassenger" min="1" id="noOfPassenger" required="true">
+        </div>
+        <div>
+            <div>
+                <div>
+                     <input name="checkbox-group-1493643087370" id="tatkal-checkbox" value="option-1" type="checkbox">Tatkal
+                </div>
+            </div>
+        </div>
+        <div>
+            <div>
+                <div>
+                    <label>
+                        <input name="checkbox-group-1493643120066" id="confirm-checkbox" value="option-1" type="checkbox" checked="checked">Confirm</label>
+                </div>
+            </div>
+        </div>
+        <div>
+            <label><span id="docs-internal-guid-f6f7d1cb-c411-c93a-e52f-c1f7d7f9622a">Birth type</span>*</label>
+            <div class="radio-group">
+                <div class="radio">
+                    <label for="radio-group-1493643148902-0">
+                        <input required="true" name="radio-group-1493643148902" id="radio-group-1493643148902-0" aria-required="true" value="option-1" type="radio">AC First Class/Executive Class</label>
+                </div>
+                <div class="radio">
+                    <label for="radio-group-1493643148902-1">
+                        <input required="true" name="radio-group-1493643148902" id="radio-group-1493643148902-1" aria-required="true" value="option-2" type="radio">AC 2 Tier/First Class</label>
+                </div>
+                <div class="radio">
+                    <label for="radio-group-1493643148902-2">
+                        <input required="true" name="radio-group-1493643148902" id="radio-group-1493643148902-2" aria-required="true" value="option-3" type="radio">AC 3 Tier/AC Chair car/ AC 3 Economy</label>
+                </div>
+                <div class="radio">
+                    <label for="radio-group-1493643148902-3">
+                        <input required="true" name="radio-group-1493643148902" id="radio-group-1493643148902-3" aria-required="true" value="option-4" type="radio">Sleeper Class</label>
+                </div>
+                <div class="radio">
+                    <label for="radio-group-1493643148902-4">
+                        <input required="true" name="radio-group-1493643148902" id="radio-group-1493643148902-4" aria-required="true" value="option-5" type="radio" checked="checked">Second Class</label>
+                </div>
+            </div>
+        </div>
+        <div class="fb-date form-group field-date-1493643231805">
+            <label class="fb-date-label">Journey Date &amp; Time<span class="fb-required"> *</span></label>
+            <input type="datetime-local" required="true" class="form-control" name="date-1493643231805" id="date-1493643231805" aria-required="true">
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+
+    <h3>Refundable amount : <span id="result"></span></h3>
+</div>
+    <script>
+        $(document).ready(function() {
+            $("form").submit(function() {
+                var isTatkal = $('#tatkal-checkbox').prop('checked');
+                var isConfirmed = $('#confirm-checkbox').prop('checked');
+
+                if(isTatkal && isConfirmed){
+                  console.log('Total amount refundable = 0');
+                  return false;
+                }
+
+                var amount = parseInt($('#amount').val());
+                var noOfPessenger = parseInt($('#noOfPassenger').val());
+                var birthType = $("input:radio[name ='radio-group-1493643148902']:checked").val();
+
+                var today = new Date().getTime();
+                var journeyDate = new Date($('#date-1493643231805').val()).getTime();
+                var diffMs = (journeyDate - today);
+                var diffMins = Math.round(diffMs / 60000);
+                console.log("Difference in Min :: ", diffMins);
+
+                var percentageDeduction;
+                var minimumDeduction;
+
+                console.log(birthType);
+                switch(birthType) {
+                  case "option-1":
+                  minimumDeduction=240;
+                  break;
+                  case "option-2":
+                  minimumDeduction=200;
+                  break;
+                  case "option-3":
+                  minimumDeduction=180;
+                  break;
+                  case "option-4":
+                  minimumDeduction=120;
+                  break;
+                  case "option-5":
+                  minimumDeduction=60;
+                  break;
+                  default:
+                  return false;
+                }
+                minimumDeduction = minimumDeduction * noOfPessenger;
+                console.log('Minimum Deduction == ', minimumDeduction);
+                var extraDeduction = 0;
+                if(diffMins > 720 && diffMins <= 2880){
+                  extraDeduction = getDeduction(25, amount);
+                }else if (diffMins > 240 && diffMins <= 720) {
+                  extraDeduction = getDeduction(50, amount);
+                }
+                var finalDeduction = minimumDeduction < extraDeduction ? extraDeduction : minimumDeduction;
+                console.log('Final Deduction == ', finalDeduction);
+                console.log('Total amount refundable = ', amount - finalDeduction);
+                $('#result').text(amount - finalDeduction);
+                return false;
+            });
+        });
+
+        function getDeduction(percentage, amount) {
+          return ((percentage / 100) * amount);
+        }
+    </script>
+
+
+
+</body></html>
